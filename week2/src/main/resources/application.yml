@@ -1,0 +1,3 @@
+spring:
+  profiles:
+    name: week2
