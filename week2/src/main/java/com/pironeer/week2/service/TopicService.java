@@ -1,37 +1,44 @@
 package com.pironeer.week2.service;
 
 import com.pironeer.week2.dto.request.TopicCreateRequest;
+import com.pironeer.week2.dto.request.TopicUpdateRequest;
 import com.pironeer.week2.dto.response.TopicResponse;
+import com.pironeer.week2.mapper.TopicMapper;
 import com.pironeer.week2.repository.TopicRepository;
 import com.pironeer.week2.repository.domain.Topic;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
-@RestController
 @RequiredArgsConstructor
 public class TopicService {
     private final TopicRepository topicRepository;
 
     public void save(TopicCreateRequest request) {
-        Topic topic = Topic.builder()
-                .title(request.title())
-                .content(request.content())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        topicRepository.save(topic);
+        topicRepository.save(TopicMapper.from(request));
     }
 
     public TopicResponse findById(Long id) {
-        Topic topic = topicRepository.findById(id);
+        Topic topic = topicRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TOPIC NOT FOUND"));
         return TopicResponse.of(topic);
+    }
+
+    public List<TopicResponse> findAll() {
+        List<Topic> topics = topicRepository.findAll();
+        return topics.stream().map(TopicResponse::of).toList();
+    }
+
+    public TopicResponse update(TopicUpdateRequest request) {
+        Topic topic = topicRepository.findById(request.id())
+                .orElseThrow(() -> new RuntimeException("TOPIC NOT FOUND"));
+        topicRepository.save(topic.update(request));
+        return TopicResponse.of(topic);
+    }
+
+    public void deleteById(Long id) {
+        topicRepository.deleteById(id);
     }
 }
