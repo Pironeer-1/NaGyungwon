@@ -23,7 +23,7 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping
-    @Operation(summary = "게시물 작성")
+    @Operation(summary = "게시판 작성")
     public SuccessResponse<SingleResult<Long>> create(
             @Valid @RequestBody BoardCreateRequest request
     ) {
